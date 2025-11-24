@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 FILESDIR=$1
 SEARCHSTR=$2
