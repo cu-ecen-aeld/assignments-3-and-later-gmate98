@@ -1,12 +1,12 @@
 ifdef CROSS_COMPILE
-CC := $(CROSS_COMPILE)gcc
+CC ?= $(CROSS_COMPILE)gcc
 SYSROOT := $(shell $(CC) -print-sysroot)
-CFLAGS := --sysroot=$(SYSROOT)
-LDFLAGS := --sysroot=$(SYSROOT)
+CFLAGS += --sysroot=$(SYSROOT)
+LDFLAGS += --sysroot=$(SYSROOT)
 else
-CC := gcc
-CFLAGS :=
-LDFLAGS :=
+CC ?= gcc
+CFLAGS ?=
+LDFLAGS ?=
 endif
 
 # Add all and extra warinigs
@@ -14,7 +14,7 @@ CFLAGS += -Wall -Wextra -O0 -g
 
 SRCS := $(wildcard *.c)
 OBJS := $(SRCS:.c=.o)
-TARGET := aesdsocket
+TARGET ?= aesdsocket
 
 .PHONY: all default clean
 
