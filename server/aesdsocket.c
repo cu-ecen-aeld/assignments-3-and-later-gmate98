@@ -335,7 +335,7 @@ void* sendAndReceiveFunc(void* thread_params) {
         syslog(LOG_INFO,"Accepted connection from: %s\n", ip_str);
 
         // Create file to write incoming packets to
-        FILE* fp = fopen(packets_fp, "ab+");
+        FILE* fp = fopen(packets_fp, "a+");
 
         do {
             // Acquire and lock mutex before writing to packets_fp
@@ -445,9 +445,8 @@ void setUpTimer(pthread_mutex_t* mutex) {
 
 void generateTimeStamp(union sigval sigval) {
     pthread_mutex_t* mutex = (pthread_mutex_t *) sigval.sival_ptr;
-    const char label[] = "timestamp:";
     char timestamp[100] = {};
-    memcpy(timestamp, label, sizeof(label));
+    char timestamp_tmp[40] = {};
 
     FILE* fp = fopen(packets_fp, "a+");
 
@@ -464,7 +463,9 @@ void generateTimeStamp(union sigval sigval) {
         return;
     }
 
-    size_t len = strftime(timestamp+sizeof(label), sizeof(timestamp)-sizeof(label), "%a, %d %b %Y %H:%M:%S %z \n", tmp);
+    size_t len = strftime(timestamp_tmp, sizeof(timestamp_tmp), "%a, %d %b %Y %H:%M:%S %z", tmp);
+    sprintf(timestamp, "timestamp:%s \n", timestamp_tmp);
+    
     if (len == 0) {
         syslog(LOG_ERR, "strftime: %s", strerror(errno));
         return;
@@ -472,7 +473,7 @@ void generateTimeStamp(union sigval sigval) {
         syslog(LOG_ERR, "Timestamp too long!");
     }
 
-    size_t ret = fwrite(timestamp, sizeof(char), len+sizeof(label), fp);
+    size_t ret = fwrite(timestamp, sizeof(char), strlen(timestamp), fp);
     if (ret < len) {
         syslog(LOG_ERR, "Unable to write timestamp!");
     }
